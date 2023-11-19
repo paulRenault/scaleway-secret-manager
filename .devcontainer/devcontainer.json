@@ -1,0 +1,23 @@
+{
+	"name": "Scaleway secrets manager",
+	"image": "mcr.microsoft.com/devcontainers/base:jammy",
+	"features": {
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {}
+	},
+	"runArgs": ["--env-file",".devcontainer/devcontainer.env"],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"hashicorp.terraform",
+				"github.copilot",
+				"ms-kubernetes-tools.vscode-kubernetes-tools"
+			]
+		}
+	},
+	"mounts": [{
+		"source": "${localEnv:HOME}/.kube",
+		"target": "/home/vscode/.kube",
+		"type": "bind"
+	}]
+}
