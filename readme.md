@@ -462,42 +462,23 @@ The login and password are base 64 encoded.
 
 You can edit the secret from the scaleway console or using terraform. Wait about 1 minute and enter the command again to see the updated secret.
 
+### as a file
+
+Run this command to deploy the second external secret:
+```bash
+kubectl apply -f external-secret-config/external-secret-file.yaml
+```
+
+Type this command to see the result:
+
+```bash
+kubectl describe externalsecret secret-file -n external-secret
+```
 ## Use it
 
 Now that the secrets have been retrieved from the secret manager, they can be used in a pod
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  namespace: external-secret
-  labels:
-    app: nginx
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:latest
-        ports:
-        - containerPort: 80
-        env:
-          - name: TEST_STR
-            valueFrom:
-              secretKeyRef:
-                name: my-secret-str
-                key: mysql_connection_string
-```
-
-We're going to use the secret as an environment variable `TEST_STR`
+We're going to use the secret `my-secret-str` as an environment variable `TEST_STR` and the secret `my-secret-file` as a volume mount into the pod
 
 To deploy our test pod:
 
@@ -519,9 +500,19 @@ kubectl exec -it nginx-deployment-859dbd85c6-mxxgv -n external-secret -- bash
 echo $TEST_STR
 ```
 
-Unfortunately, the secret is not updated in the pod when the secret is updated in the secret manager, despite the fact that it is updated every minute. You need to delete the pod so that kubernetes can create it again.
+Unfortunately, the secret in the env var is not updated in the pod when the secret is updated in the secret manager, despite the fact that it is updated every minute. You need to delete the pod so that kubernetes can create it again.
 
 There are services that can do this automatically, but I haven't tried them yet.
+
+And you can see the secret mount into the pod with the command:
+
+```bash
+kubectl exec -it nginx-deployment-859dbd85c6-mxxgv -n external-secret -- bash
+cat /etc/secret-volume/secret.json
+```
+
+This one, however, is updated. You can update it in the UI scaleway, wait for the `spec.refreshInterval` and rerun the command.
+It must be updated.
 
 # Clean up
 

@@ -26,3 +26,11 @@ spec:
               secretKeyRef:
                 name: my-secret-str
                 key: mysql_connection_string
+        volumeMounts:
+        - name: secret-volume
+          mountPath: "/etc/secret-volume"
+          readOnly: true
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: my-secret-file
